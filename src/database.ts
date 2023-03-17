@@ -28,14 +28,20 @@ export const Product: TProduct[] = [{
 
 export const Purchase: TPurchase[] = [{
     userid: "02",
-    productid: "01",
+    productid: "045",
     quantity: 1,
     totalPrice: 5000
 }, {
     userid: "06",
-    productid: "03",
+    productid: "01",
     quantity: 5,
     totalPrice: 5 * 3000
+},
+{
+    userid: "02",
+    productid: "03",
+    quantity: 1,
+    totalPrice: 5000
 }]
 
 function createUser(id: string, email: string, password: string) {
