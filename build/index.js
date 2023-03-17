@@ -6,15 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = require("./database");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-console.table(database_1.User);
-console.table(database_1.Product);
-console.table(database_1.Purchase);
-(0, database_1.getAllUser)();
-(0, database_1.getAllProducts)();
-(0, database_1.getProductById)('03');
-(0, database_1.queryProductByName)("moto");
-(0, database_1.createPurchase)("0505", "p004", 2, 1600);
-(0, database_1.getAllPurchasesFromUserId)("02");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
@@ -68,5 +59,44 @@ app.post("/purchases", (req, res) => {
     };
     database_1.Purchase.push(newPurchase);
     res.status(201).send('Compra realizada com sucesso');
+});
+app.get("/users/:id/purchases", (req, res) => {
+    const id = req.params.id;
+    const result = database_1.Purchase.filter((item) => {
+        if (item.userid === id) {
+            return database_1.Purchase;
+        }
+    });
+    res.status(200).send(result);
+});
+app.get("/product/:id", (req, res) => {
+    const id = req.params.id;
+    const result = database_1.Product.find((item) => item.id === id);
+    res.status(200).send(result);
+});
+app.put("/user/:id", (req, res) => {
+    const id = req.params.id;
+    const newSenha = req.body.password;
+    const senha = database_1.User.find((item) => item.id === id);
+    console.log("antes", senha);
+    if (senha) {
+        senha.password = newSenha || senha.password;
+    }
+    console.log("depois", senha);
+    res.status(201).send("conta alterada");
+});
+app.put("/product/:id", (req, res) => {
+    const id = req.params.id;
+    const newPrice = req.body.price;
+    const produto = database_1.Product.find((item) => item.id === id);
+    console.log("antes", produto);
+    if (!produto) {
+        res.status(201).send("produto nao encontrado");
+    }
+    else {
+        produto.price = newPrice || produto.price;
+    }
+    console.log("depois", produto);
+    res.status(201).send("produto alterado com sucesso");
 });
 //# sourceMappingURL=index.js.map
