@@ -16,49 +16,122 @@ app.get('/ping', (req, res) => {
     res.send('Pong!');
 });
 app.get("/user", (req, res) => {
-    res.status(200).send(database_1.User);
+    try {
+        res.status(200).send(database_1.User);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 app.get("/products", (req, res) => {
-    res.status(200).send(database_1.Product);
+    try {
+        res.status(200).send(database_1.Product);
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 app.get("/products/name", (req, res) => {
-    const q = req.query.q;
-    const result = q ?
-        database_1.Product.filter((item) => item.name.toLowerCase().includes(q.toLowerCase()))
-        : database_1.Product;
-    res.status(200).send(result);
+    try {
+        const q = req.query.q;
+        if (q !== undefined) {
+            if (q.length < 2) {
+                res.status(400);
+                throw new Error("q deve ter no minimo 2 caracteres");
+            }
+        }
+        const result = q ?
+            database_1.Product.filter((item) => item.name.toLowerCase().includes(q.toLowerCase()))
+            : database_1.Product;
+        res.status(200).send(result);
+    }
+    catch (error) {
+        console.log(error);
+        if (res.statusCode === 200) {
+            res.status(500);
+        }
+        res.end(error.message);
+    }
 });
 app.post("/users", (req, res) => {
-    const id = req.body.id;
-    const email = req.body.email;
-    const password = req.body.password;
-    const newUser = {
-        id, email, password
-    };
-    database_1.User.push(newUser);
-    res.status(201).send("Cadastro realizado com sucesso");
+    try {
+        const id = req.body.id;
+        const email = req.body.email;
+        const password = req.body.password;
+        const newUser = {
+            id, email, password
+        };
+        const idExistente = database_1.User.find((client) => client.id === newUser.id);
+        if (idExistente) {
+            res.status(400);
+            throw new Error("Não é possivel criar usuario com id ja existente");
+        }
+        else {
+            database_1.User.push(newUser);
+            res.status(201).send("Cadastro realizado com sucesso");
+        }
+    }
+    catch (error) {
+        console.log(error);
+        if (res.statusCode === 200) {
+            res.status(500);
+        }
+        res.end(error.message);
+    }
 });
 app.post("/products", (req, res) => {
-    const id = req.body.id;
-    const name = req.body.name;
-    const price = req.body.price;
-    const category = req.body.category;
-    const newProduct = {
-        id, name, price, category
-    };
-    database_1.Product.push(newProduct);
-    res.status(201).send("Produto cadastrado com sucesso");
+    try {
+        const id = req.body.id;
+        const name = req.body.name;
+        const price = req.body.price;
+        const category = req.body.category;
+        const newProduct = {
+            id, name, price, category
+        };
+        const idExistente = database_1.Product.find((client) => client.id === newProduct.id);
+        if (idExistente) {
+            res.status(400);
+            throw new Error("Não é possivel criar produto com id ja existente");
+        }
+        else {
+            database_1.Product.push(newProduct);
+            res.status(201).send("Cadastro realizado com sucesso");
+        }
+    }
+    catch (error) {
+        console.log(error);
+        if (res.statusCode === 200) {
+            res.status(500);
+        }
+        res.end(error.message);
+    }
 });
 app.post("/purchases", (req, res) => {
-    const userid = req.body.userid;
-    const productid = req.body.productid;
-    const quantity = req.body.quantity;
-    const totalPrice = req.body.totalPrice;
-    const newPurchase = {
-        userid, productid, quantity, totalPrice
-    };
-    database_1.Purchase.push(newPurchase);
-    res.status(201).send('Compra realizada com sucesso');
+    try {
+        const userid = req.body.userid;
+        const productid = req.body.productid;
+        const quantity = req.body.quantity;
+        const totalPrice = req.body.totalPrice;
+        const newPurchase = {
+            userid, productid, quantity, totalPrice
+        };
+        const idExistente = database_1.User.find((client) => client.id === newPurchase.userid);
+        if (!idExistente) {
+            res.status(400);
+            throw new Error("id de usuario inexistente");
+        }
+        else {
+            database_1.Purchase.push(newPurchase);
+            res.status(201).send('Compra realizada com sucesso');
+        }
+    }
+    catch (error) {
+        console.log(error);
+        if (res.statusCode === 200) {
+            res.status(500);
+        }
+        res.end(error.message);
+    }
 });
 app.get("/users/:id/purchases", (req, res) => {
     const id = req.params.id;

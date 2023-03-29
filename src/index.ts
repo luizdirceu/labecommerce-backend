@@ -28,34 +28,76 @@ app.get('/ping', (req: Request, res: Response) => {
 
 //exercicio 2
 app.get("/user",(req: Request, res: Response)=>{
+   try {
     res.status(200).send(User)
+   } catch (error) {
+    console.log(error);
+    
+   } 
 })  
 
 app.get("/products", (req: Request, res: Response)=>{
-res.status(200).send(Product)
+try {
+    res.status(200).send(Product)
+} catch (error) {
+    console.log(error);
+    
+} 
 })
 
 app.get("/products/name", (req:Request, res: Response)=>{
+   try {
     const q = req.query.q as string
+    if (q !== undefined) {
+        if (q.length < 2) {
+            res.status(400)
+            throw new Error("q deve ter no minimo 2 caracteres")
+
+        }
+    }
     const result = q ? 
     Product.filter((item)=>item.name.toLowerCase().includes(q.toLowerCase()))
     : Product;
 res.status(200).send(result)
+   } catch (error) {
+    console.log(error);
+    if (res.statusCode === 200) {
+        res.status(500)
+    }
+    res.end(error.message)
+}
 })
 
 // exercicio 3
 app.post("/users", (req: Request, res: Response)=>{
+  try {
     const id: string = req.body.id
     const email: string = req.body.email
     const password : string = req.body.password
     const newUser = {
         id, email, password
     }
-    User.push(newUser)
-    res.status(201).send("Cadastro realizado com sucesso")
+
+    const idExistente = User.find((client) => client.id === newUser.id)
+    if(idExistente){
+        res.status(400)
+        throw new Error("Não é possivel criar usuario com id ja existente")
+    }else{
+        User.push(newUser)
+        res.status(201).send("Cadastro realizado com sucesso")
+    }
+        
+  } catch (error) {
+    console.log(error);
+    if (res.statusCode === 200) {
+        res.status(500)
+    }
+    res.end(error.message)
+  }  
 })
 
 app.post("/products", (req: Request, res: Response)=>{
+ try {
     const id: string = req.body.id
     const name: string = req.body.name
     const price: number = req.body.price
@@ -64,20 +106,50 @@ app.post("/products", (req: Request, res: Response)=>{
         id, name, price, category
     }
 
-    Product.push(newProduct)
-    res.status(201).send("Produto cadastrado com sucesso")
+
+    const idExistente = Product.find((client) => client.id === newProduct.id)
+    if(idExistente){
+        res.status(400)
+        throw new Error("Não é possivel criar produto com id ja existente")
+    }else{
+        Product.push(newProduct)
+        res.status(201).send("Cadastro realizado com sucesso")
+    }
+
+ } catch (error) {
+    console.log(error);
+    if (res.statusCode === 200) {
+        res.status(500)
+    }
+    res.end(error.message)
+ }  
 })
 
 app.post("/purchases", (req: Request, res: Response)=>{
-const userid : string = req.body.userid
+try {
+    const userid : string = req.body.userid
 const productid: string = req.body.productid
 const quantity: number = req.body.quantity
 const totalPrice : number = req.body.totalPrice
 const newPurchase = {
     userid, productid, quantity, totalPrice
 }
-Purchase.push(newPurchase)
-res.status(201).send('Compra realizada com sucesso')
+const idExistente = User.find((client) => client.id === newPurchase.userid)
+if(!idExistente){
+    res.status(400)
+     throw new Error("id de usuario inexistente")
+}else{
+    Purchase.push(newPurchase)
+    res.status(201).send('Compra realizada com sucesso')
+
+}
+} catch (error) {
+    console.log(error);
+    if (res.statusCode === 200) {
+        res.status(500)
+    }
+    res.end(error.message)
+} 
 })
 
 // exercicio aprofundamento express
